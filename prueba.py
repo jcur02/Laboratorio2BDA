@@ -46,10 +46,8 @@ def test_redis_create(client, data):
 def test_redis_create2(client, data):
     start_time = time.time()
     for item in data:
-        # Usamos la clave 'id' para la clave en Redis
-        redis_key = f"item:{item['id']}"  # Clave única para cada item (puede ser 'id' o 'name')
-        # Usamos 'value' o el JSON completo como el valor
-        client.set(redis_key, item['value'])  # Almacena solo el 'value' o usa JSON si prefieres guardar todo el objeto
+        redis_key = f"item:{item['id']}"  
+        client.set(redis_key, item['value']) 
     elapsed_time = time.time() - start_time
     return elapsed_time
 
@@ -65,10 +63,7 @@ def test_redis_read(client):
 # Read para clave-valor
 def test_redis_read2(client):
     start_time = time.time()
-    # Leer un valor específico por clave
     _ = client.get("item:5000")  
-
-    # Filtrar claves por prefijo y valores mayores o iguales a 50000
     keys = client.keys("item:*")
     _ = [client.get(key) for key in keys if int(client.get(key)) >= 50000]
 
@@ -89,13 +84,11 @@ def test_redis_update(client):
 # Update para clave-valor
 def test_redis_update2(client):
     start_time = time.time()
-    # Obtener todas las claves
     keys = client.keys("item:*")
-    # Actualizar valores asociados con cada clave
     for key in keys:
         current_value = client.get(key)
-        if current_value is not None:  # Si existe el valor actual
-            client.set(key, 0)  # Establecer el nuevo valor
+        if current_value is not None:  
+            client.set(key, 0)  
     elapsed_time = time.time() - start_time
     return elapsed_time
 
