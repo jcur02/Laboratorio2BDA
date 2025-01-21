@@ -42,6 +42,16 @@ def test_redis_create(client, data):
     elapsed_time = time.time() - start_time
     return elapsed_time
 
+# Create para Redis usando solo clave-valor
+def test_redis_create2(client, data):
+    start_time = time.time()
+    for item in data:
+        # Usamos la clave 'id' para la clave en Redis
+        redis_key = f"item:{item['id']}"  # Clave única para cada item (puede ser 'id' o 'name')
+        # Usamos 'value' o el JSON completo como el valor
+        client.set(redis_key, item['value'])  # Almacena solo el 'value' o usa JSON si prefieres guardar todo el objeto
+    elapsed_time = time.time() - start_time
+    return elapsed_time
 
 # Read
 def test_redis_read(client):
@@ -52,6 +62,20 @@ def test_redis_read(client):
     elapsed_time = time.time() - start_time
     return elapsed_time
 
+# Read para clave-valor
+def test_redis_read2(client):
+    start_time = time.time()
+    # Leer un valor específico por clave
+    _ = client.get("item:5000")  
+
+    # Filtrar claves por prefijo y valores mayores o iguales a 50000
+    keys = client.keys("item:*")
+    _ = [client.get(key) for key in keys if int(client.get(key)) >= 50000]
+
+    elapsed_time = time.time() - start_time
+    return elapsed_time
+
+
 # Update
 def test_redis_update(client):
     start_time = time.time()
@@ -61,6 +85,20 @@ def test_redis_update(client):
             client.hset(key, "value", 0)
     elapsed_time = time.time() - start_time
     return elapsed_time
+
+# Update para clave-valor
+def test_redis_update2(client):
+    start_time = time.time()
+    # Obtener todas las claves
+    keys = client.keys("item:*")
+    # Actualizar valores asociados con cada clave
+    for key in keys:
+        current_value = client.get(key)
+        if current_value is not None:  # Si existe el valor actual
+            client.set(key, 0)  # Establecer el nuevo valor
+    elapsed_time = time.time() - start_time
+    return elapsed_time
+
 
 # Delete
 def test_redis_delete(client):
@@ -89,6 +127,10 @@ def run_tests():
         del redis_item['id']  
         data_for_redis.append(redis_item)
 
+    data_for_redis2 = []  # No eliminamos 'id'
+    for item in data_for_mongo:
+        data_for_redis2.append(item)  # Conservamos el objeto completo
+
     # MongoDB tests
     print("MongoDB Tests:")
     print(f"Create: {test_mongo_create(mongo_collection, data_for_mongo):.2f} seconds")
@@ -98,9 +140,9 @@ def run_tests():
 
     # Redis tests
     print("\nRedis Tests:")
-    print(f"Create: {test_redis_create(redis_client, data_for_redis):.2f} seconds")
-    print(f"Read: {test_redis_read(redis_client):.2f} seconds")
-    print(f"Update: {test_redis_update(redis_client):.2f} seconds")
+    print(f"Create: {test_redis_create2(redis_client, data_for_redis2):.2f} seconds")
+    print(f"Read: {test_redis_read2(redis_client):.2f} seconds")
+    print(f"Update: {test_redis_update2(redis_client):.2f} seconds")
     print(f"Delete: {test_redis_delete(redis_client):.2f} seconds")
 
 run_tests()
