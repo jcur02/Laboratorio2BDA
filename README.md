@@ -6,7 +6,7 @@ Este repositorio contiene toda la documentación y los archivos necesarios para 
 - [Requisitos Previos](#requisitos)
 - [Instalación de MongoDB](#instalación-de-mongodb)
 - [Instalación de Redis](#instalación-de-redis)
-- [Instalación de Dependencias de Python](#instalación-de-paquetes-de-python)
+- [Instalación de Paquetes de Python](#instalación-de-paquetes-de-python)
 - [Ejecución del Script](#ejecución-del-script)
 
 ---
